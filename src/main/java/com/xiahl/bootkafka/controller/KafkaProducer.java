@@ -48,4 +48,17 @@ public class KafkaProducer {
             }
         });
     }
+
+
+    @GetMapping("/kafka/transaction")
+    public void sendMessage7(){
+        // 声明事务：后面报错消息不会发出去
+        kafkaTemplate.executeInTransaction(operations -> {
+            operations.send("topic1","test executeInTransaction");
+            throw new RuntimeException("fail");
+        });
+        // 不声明事务：后面报错但前面消息已经发送成功了
+        kafkaTemplate.send("topic1","test executeInTransaction");
+        throw new RuntimeException("fail");
+    }
 }
